@@ -2,7 +2,148 @@
 
 import bz2
 import bs4
+import re
 import sys
+
+brillcode = {
+		"\x21": "!",
+		"\x22": "ʾ",
+		"\x23": "ʿ",
+		"\x24": "Ā",
+		"\x25": "Ă",
+		"\x26": "Ǎ",
+		"\x27": "ḍ",
+		"\x2a": "Å",
+		"\x2b": "Ạ",
+		"\x2d": "Ṣ",
+		"\x2f": "Ḅ",
+		"\x30": "Ḥ",
+		"\x31": "Č",
+		"\x32": "Ć",
+		"\x33": "j̲",
+		"\x34": "Ḍ",
+		"\x35": "D́",
+		"\x36": "Ē",
+		"\x37": "Ĕ",
+		"\x38": "Ě",
+		"\x39": "h̲",
+		"\x3c": "Ǝ",
+		"\x3d": "Ḡ",
+		"\x3e": "Ğ",
+		"\x40": "Ǧ",
+		"\x5b": "Ġ",
+		"\x5d": "Ḫ",
+		"\x5e": "Ī",
+		"\x5f": "I̊",
+		"\x60": "İ",
+		"\x7b": "Ķ",
+		"\x7c": "Ḳ",
+		"\x7d": "Ḷ",
+		"\x7e": "Ł",
+		"\x82": "Ṃ",
+		"\x83": "N̄",
+		"\x84": "Ń",
+		"\x85": "Ñ",
+		"\x86": "Ṇ",
+		"\x87": "Ṅ",
+		"\x88": "Ō",
+		"\x89": "Q̇",
+		"\x8b": "Ŕ",
+		"\x8c": "Ṛ",
+		"\x92": "Š",
+		"\x93": "Ś",
+		"\x94": "Ş",
+		"\x95": "Ṭ",
+		"\x96": "T́",
+		"\x97": "Ū",
+		"\x98": "Ú",
+		"\x99": "Ŭ",
+		"\x9b": "Ṿ",
+		"\x9c": "Ẇ",
+		"\x9f": "Ÿ",
+		"\xa1": "Ŷ",
+		"\xa2": "Ż",
+		"\xa3": "Ẓ",
+		"\xa5": "Ž",
+		"\xa7": "ā",
+		"\xa8": "ă",
+		"\xa9": "ǎ",
+		"\xaa": "ã",
+		"\xab": "å",
+		"\xac": "ạ",
+		"\xae": "ạ̄",
+		"\xb0": "ḅ",
+		"\xb1": "ç",
+		"\xb3": "u̱",
+		"\xb4": "č",
+		"\xb5": "ć",
+		"\xb6": "ɔ",
+		"\xb8": "d́",
+		"\xb9": "y̲",
+		"\xba": "ð",
+		"\xbb": "ð̣",
+		"\xbf": "ē",
+		"\xc0": "ĕ",
+		"\xc1": "ě",
+		"\xc2": "ȩ",
+		"\xc3": "ə",
+		"\xc4": "ḡ",
+		"\xc5": "ğ",
+		"\xc6": "ǧ",
+		"\xc7": "ġ",
+		"\xc8": "ḥ",
+		"\xc9": "ḫ",
+		"\xca": "ī",
+		"\xcb": "i̊",
+		"\xcc": "ı",
+		"\xcd": "ķ",
+		"\xce": "ḳ",
+		"\xcf": "ḷ",
+		"\xd1": "ł",
+		"\xd2": "ṃ",
+		"\xd3": "n̄",
+		"\xd4": "ń",
+		"\xd5": "k̲",
+		"\xd6": "ṇ",
+		"\xd8": "ṅ",
+		"\xd9": "ō",
+		"\xda": "q̇",
+		"\xdb": "ŕ",
+		"\xdc": "ṛ",
+		"\xdf": "ṣ",
+		"\xe0": "š",
+		"\xe1": "ś",
+		"\xe2": "ş",
+		"\xe3": "ṫ",
+		"\xe4": "t́",
+		"\xe5": "ū",
+		"\xe6": "ú",
+		"\xe7": "ŭ",
+		"\xe8": "ṿ",
+		"\xe9": "ẇ",
+		"\xea": "s̲",
+		"\xeb": "ŷ",
+		"\xec": "ž",
+		"\xed": "ẓ",
+		"\xee": "ż",
+		"\xef": "t̲",
+		"\xf1": "z̲",
+		"\xf2": "D̲",
+		"\xf3": "G̲",
+		"\xf4": "H̲",
+		"\xf5": "J̲",
+		"\xf6": "K̲",
+		"\xf7": "S̲",
+		"\xf8": "T̲",
+		"\xf9": "d̲",
+		"\xfa": "Y̲",
+		"\xfb": "Z̲",
+		"\xfc": "a̲",
+		"\xfd": "č̲",
+		"\xff": "g̲"
+		}
+
+brilldecode = re.compile('|'.join(re.escape(character) for character in brillcode.keys()))
 
 try:
 	f = bz2.open(sys.argv[1])
@@ -15,143 +156,10 @@ finally:
 
 for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"]):
 	if tag.string != None:
-		tag.string = tag.string.replace("\x21", "!")
-		tag.string = tag.string.replace("\x22", "ʾ")
-		tag.string = tag.string.replace("\x23", "ʿ")
-		tag.string = tag.string.replace("\x24", "Ā")
-		tag.string = tag.string.replace("\x25", "Ă")
-		tag.string = tag.string.replace("\x26", "Ǎ")
-		tag.string = tag.string.replace("\x27", "ḍ")
-		tag.string = tag.string.replace("\x2a", "Å")
-		tag.string = tag.string.replace("\x2b", "Ạ")
-		tag.string = tag.string.replace("\x2d", "Ṣ")
-		tag.string = tag.string.replace("\x2f", "Ḅ")
-		tag.string = tag.string.replace("\x30", "Ḥ")
-		tag.string = tag.string.replace("\x31", "Č")
-		tag.string = tag.string.replace("\x32", "Ć")
-		tag.string = tag.string.replace("\x33", "ʝ")
-		tag.string = tag.string.replace("\x34", "Ḍ")
-		tag.string = tag.string.replace("\x35", "D́")
-		tag.string = tag.string.replace("\x36", "Ē")
-		tag.string = tag.string.replace("\x37", "Ĕ")
-		tag.string = tag.string.replace("\x38", "Ě")
-		tag.string = tag.string.replace("\x39", "ẖ")
-		tag.string = tag.string.replace("\x3c", "Ǝ")
-		tag.string = tag.string.replace("\x3d", "Ḡ")
-		tag.string = tag.string.replace("\x3e", "Ğ")
-		tag.string = tag.string.replace("\x40", "Ǧ")
-		tag.string = tag.string.replace("\x5b", "Ġ")
-		tag.string = tag.string.replace("\x5d", "Ḫ")
-		tag.string = tag.string.replace("\x5e", "Ī")
-		tag.string = tag.string.replace("\x5f", "I̊")
-		tag.string = tag.string.replace("\x60", "İ")
-		tag.string = tag.string.replace("\x7b", "Ķ")
-		tag.string = tag.string.replace("\x7c", "Ḳ")
-		tag.string = tag.string.replace("\x7d", "Ḷ")
-		tag.string = tag.string.replace("\x7e", "Ł")
-		tag.string = tag.string.replace("\x82", "Ṃ")
-		tag.string = tag.string.replace("\x83", "N̄")
-		tag.string = tag.string.replace("\x84", "Ń")
-		tag.string = tag.string.replace("\x85", "Ñ")
-		tag.string = tag.string.replace("\x86", "Ṇ")
-		tag.string = tag.string.replace("\x87", "Ṅ")
-		tag.string = tag.string.replace("\x88", "Ō")
-		tag.string = tag.string.replace("\x89", "Q̇")
-		tag.string = tag.string.replace("\x8b", "Ŕ")
-		tag.string = tag.string.replace("\x8c", "Ṛ")
-		tag.string = tag.string.replace("\x92", "Š")
-		tag.string = tag.string.replace("\x93", "Ś")
-		tag.string = tag.string.replace("\x94", "Ş")
-		tag.string = tag.string.replace("\x95", "Ṭ")
-		tag.string = tag.string.replace("\x96", "T́")
-		tag.string = tag.string.replace("\x97", "Ū")
-		tag.string = tag.string.replace("\x98", "Ú")
-		tag.string = tag.string.replace("\x99", "Ŭ")
-		tag.string = tag.string.replace("\x9b", "Ṿ")
-		tag.string = tag.string.replace("\x9c", "Ẇ")
-		tag.string = tag.string.replace("\x9f", "Ÿ")
-		tag.string = tag.string.replace("\xa1", "Ŷ")
-		tag.string = tag.string.replace("\xa2", "Ż")
-		tag.string = tag.string.replace("\xa3", "Ẓ")
-		tag.string = tag.string.replace("\xa5", "Ž")
-		tag.string = tag.string.replace("\xa7", "ā")
-		tag.string = tag.string.replace("\xa8", "ă")
-		tag.string = tag.string.replace("\xa9", "ǎ")
-		tag.string = tag.string.replace("\xaa", "ã")
-		tag.string = tag.string.replace("\xab", "å")
-		tag.string = tag.string.replace("\xac", "ạ")
-		tag.string = tag.string.replace("\xae", "ạ̄")
-		tag.string = tag.string.replace("\xb0", "ḅ")
-		tag.string = tag.string.replace("\xb1", "ç")
-		tag.string = tag.string.replace("\xb3", "u̱")
-		tag.string = tag.string.replace("\xb4", "č")
-		tag.string = tag.string.replace("\xb5", "ć")
-		tag.string = tag.string.replace("\xb6", "ɔ")
-		tag.string = tag.string.replace("\xb8", "d́")
-		tag.string = tag.string.replace("\xb9", "y̱")
-		tag.string = tag.string.replace("\xba", "ð")
-		tag.string = tag.string.replace("\xbb", "ð̣")
-		tag.string = tag.string.replace("\xbf", "ē")
-		tag.string = tag.string.replace("\xc0", "ĕ")
-		tag.string = tag.string.replace("\xc1", "ě")
-		tag.string = tag.string.replace("\xc2", "ȩ")
-		tag.string = tag.string.replace("\xc3", "ə")
-		tag.string = tag.string.replace("\xc4", "ḡ")
-		tag.string = tag.string.replace("\xc5", "ğ")
-		tag.string = tag.string.replace("\xc6", "ǧ")
-		tag.string = tag.string.replace("\xc7", "ġ")
-		tag.string = tag.string.replace("\xc8", "ḥ")
-		tag.string = tag.string.replace("\xc9", "ḫ")
-		tag.string = tag.string.replace("\xca", "ī")
-		tag.string = tag.string.replace("\xcb", "i̊")
-		tag.string = tag.string.replace("\xcc", "ı")
-		tag.string = tag.string.replace("\xcd", "ķ")
-		tag.string = tag.string.replace("\xce", "ḳ")
-		tag.string = tag.string.replace("\xcf", "ḷ")
-		tag.string = tag.string.replace("\xd1", "ł")
-		tag.string = tag.string.replace("\xd2", "ṃ")
-		tag.string = tag.string.replace("\xd3", "n̄")
-		tag.string = tag.string.replace("\xd4", "ń")
-		tag.string = tag.string.replace("\xd5", "ḵ")
-		tag.string = tag.string.replace("\xd6", "ṇ")
-		tag.string = tag.string.replace("\xd8", "ṅ")
-		tag.string = tag.string.replace("\xd9", "ō")
-		tag.string = tag.string.replace("\xda", "q̇")
-		tag.string = tag.string.replace("\xdb", "ŕ")
-		tag.string = tag.string.replace("\xdc", "ṛ")
-		tag.string = tag.string.replace("\xdf", "ṣ")
-		tag.string = tag.string.replace("\xe0", "š")
-		tag.string = tag.string.replace("\xe1", "ś")
-		tag.string = tag.string.replace("\xe2", "ş")
-		tag.string = tag.string.replace("\xe3", "ṫ")
-		tag.string = tag.string.replace("\xe4", "t́")
-		tag.string = tag.string.replace("\xe5", "ū")
-		tag.string = tag.string.replace("\xe6", "ú")
-		tag.string = tag.string.replace("\xe7", "ŭ")
-		tag.string = tag.string.replace("\xe8", "ṿ")
-		tag.string = tag.string.replace("\xe9", "ẇ")
-		tag.string = tag.string.replace("\xea", "s̱")
-		tag.string = tag.string.replace("\xeb", "ŷ")
-		tag.string = tag.string.replace("\xec", "ž")
-		tag.string = tag.string.replace("\xed", "ẓ")
-		tag.string = tag.string.replace("\xee", "ż")
-		tag.string = tag.string.replace("\xef", "ṯ")
-		tag.string = tag.string.replace("\xf1", "ẕ")
-		tag.string = tag.string.replace("\xf2", "Ḏ")
-		tag.string = tag.string.replace("\xf3", "G̱")
-		tag.string = tag.string.replace("\xf4", "H̱")
-		tag.string = tag.string.replace("\xf5", "J̱")
-		tag.string = tag.string.replace("\xf6", "Ḵ")
-		tag.string = tag.string.replace("\xf7", "S̱")
-		tag.string = tag.string.replace("\xf8", "Ṯ")
-		tag.string = tag.string.replace("\xf9", "ḏ")
-		tag.string = tag.string.replace("\xfa", "Y̱")
-		tag.string = tag.string.replace("\xfb", "Ẕ")
-		tag.string = tag.string.replace("\xfc", "a̱")
-		tag.string = tag.string.replace("\xfd", "č̱")
-		tag.string = tag.string.replace("\xff", "g̱")
+		tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
 	# if tag.name == 'form':
 	# 	tag.name = 'span'
+
 print(soup);
 out = open(sys.argv[1],"w")
 out.write(str(soup))
