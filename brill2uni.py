@@ -163,6 +163,8 @@ for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"]):
 for character in ['\x2d']:
   brillcode.pop(character)
 brilldecode = re.compile('|'.join(re.escape(character) for character in brillcode.keys()))
-soup.find("title").string = brilldecode.sub(lambda x: brillcode[x.group()], soup.find("title").string)
+title = re.split(r'(\[.*\])', soup.find("title").string)
+title[0] = brilldecode.sub(lambda x: brillcode[x.group()], title[0])
+soup.find("title").string = "".join(title)
 
 print(soup)
