@@ -160,4 +160,9 @@ for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"]):
 	# if tag.name == 'form':
 	# 	tag.name = 'span'
 
+for character in ['\x2d']:
+  brillcode.pop(character)
+brilldecode = re.compile('|'.join(re.escape(character) for character in brillcode.keys()))
+soup.find("title").string = brilldecode.sub(lambda x: brillcode[x.group()], soup.find("title").string)
+
 print(soup)
