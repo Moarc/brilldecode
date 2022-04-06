@@ -10,7 +10,7 @@ try:
 except:
 	f = open(sys.argv[1],mode='rb')
 finally:
-		soup = bs4.BeautifulSoup(f.read(), "lxml")
+		soup = bs4.BeautifulSoup(f.read().decode("raw_unicode_escape"), "lxml")
 		f.close()
 
 for span in soup.findAll('span', {"class": "Ba02"}):
