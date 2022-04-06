@@ -1,11 +1,17 @@
 #!/usr/bin/python3
 
+import bz2
 import bs4
 import sys
 
-data = open(sys.argv[1],mode="rb")
-soup = bs4.BeautifulSoup(data, "lxml")
-data.close()
+try:
+	f = bz2.open(sys.argv[1])
+	f.peek(0)
+except:
+	f = open(sys.argv[1],mode='rb')
+finally:
+		soup = bs4.BeautifulSoup(f.read(), "lxml")
+		f.close()
 
 for span in soup.findAll('span', {"class": "Ba02"}):
 	if span.string != None:
