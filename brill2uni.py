@@ -160,7 +160,4 @@ for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"]):
 	# if tag.name == 'form':
 	# 	tag.name = 'span'
 
-print(soup);
-out = open(sys.argv[1],"w")
-out.write(str(soup))
-out.close()
+print(soup)
