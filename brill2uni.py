@@ -23,7 +23,7 @@ import sys
 
 brillcode = {
 		"\x21": "!",
-		"\x22": "ʾ",
+		"\x22": "’",
 		"\x23": "ʿ",
 		"\x24": "Ā",
 		"\x25": "Ă",
@@ -161,7 +161,7 @@ brillcode = {
 
 digraphs = {
 		"alṢ ": "al-",
-		"ḍlṢ ": ""
+		"ḍlṢ ": "’l-"
 	}
 
 brilldecode = re.compile("|".join(re.escape(character) for character in brillcode.keys()))
