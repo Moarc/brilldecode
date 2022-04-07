@@ -159,13 +159,13 @@ brillcode = {
 		"\xff": "g̲"
 		}
 
-brilldecode = re.compile('|'.join(re.escape(character) for character in brillcode.keys()))
+brilldecode = re.compile("|".join(re.escape(character) for character in brillcode.keys()))
 
 try:
 	f = bz2.open(sys.argv[1])
 	f.peek(0)
 except:
-	f = open(sys.argv[1],mode='rb')
+	f = open(sys.argv[1],mode="rb")
 finally:
 		soup = bs4.BeautifulSoup(f.read().decode("raw_unicode_escape"), "lxml")
 		f.close()
@@ -173,13 +173,13 @@ finally:
 for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"]):
 	if tag.string != None:
 		tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
-	# if tag.name == 'form':
-	# 	tag.name = 'span'
+	# if tag.name == "form":
+	# 	tag.name = "span"
 
-for character in ['\x2d']:
+for character in ["\x2d"]:
 	brillcode.pop(character)
-brilldecode = re.compile('|'.join(re.escape(character) for character in brillcode.keys()))
-title = re.split(r'(\[.*\])', soup.find("title").string)
+brilldecode = re.compile("|".join(re.escape(character) for character in brillcode.keys()))
+title = re.split(r"(\[.*\])", soup.find("title").string)
 title[0] = brilldecode.sub(lambda x: brillcode[x.group()], title[0])
 soup.find("title").string = "".join(title)
 
