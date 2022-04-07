@@ -161,7 +161,8 @@ brillcode = {
 
 digraphs = {
 		"alṢ ?": "al-",
-		"ḍlṢ ?": "’l-"
+		"ḍlṢ ?": "’l-",
+		" ,": ","
 	}
 
 brilldecode = re.compile("|".join(re.escape(character) for character in brillcode.keys()))
