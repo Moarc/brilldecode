@@ -160,8 +160,8 @@ brillcode = {
 		}
 
 digraphs = {
-		"alṢ ": "al-",
-		"ḍlṢ ": "’l-"
+		"alṢ ?": "al-",
+		"ḍlṢ ?": "’l-"
 	}
 
 brilldecode = re.compile("|".join(re.escape(character) for character in brillcode.keys()))
@@ -183,8 +183,8 @@ for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"]):
 
 title = re.split(r"(\[.*\])", soup.find("title").string)
 title[0] = brilldecode.sub(lambda x: brillcode[x.group()], title[0])
-brilldecode = re.compile("|".join(re.escape(character) for character in digraphs.keys()))
-title[0] = brilldecode.sub(lambda x: digraphs[x.group()], title[0])
+brilldecode = re.compile(r'(%s)' % "|".join(digraphs.keys()))
+title[0] = brilldecode.sub(lambda x: digraphs[[ digraph for digraph in digraphs if re.search(digraph, x.string[x.start():x.end()])][0]], title[0])
 soup.find("title").string = "".join(title)
 
 print(soup)
