@@ -165,6 +165,12 @@ digraphs = {
 		" ,": ","
 	}
 
+specialchars = {
+		"\xbd": "<",
+		"\xbe": ">",
+		"\xd0": '"'
+	}
+
 brilldecode = re.compile("|".join(re.escape(character) for character in brillcode.keys()))
 
 try:
@@ -182,10 +188,13 @@ for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"]):
 	# if tag.name == "form":
 	# 	tag.name = "span"
 
-title = re.split(r"(\[.*\])", soup.find("title").string)
-title[0] = brilldecode.sub(lambda x: brillcode[x.group()], title[0])
-brilldecode = re.compile(r'(%s)' % "|".join(digraphs.keys()))
-title[0] = brilldecode.sub(lambda x: digraphs[[ digraph for digraph in digraphs if re.search(digraph, x.string[x.start():x.end()])][0]], title[0])
-soup.find("title").string = "".join(title)
+title = soup.find("meta", attrs={"name": "blob"})['content']
+for specialchar in specialchars.keys():
+    title = title.replace(specialchar, specialchars[specialchar])
+title = bs4.BeautifulSoup(title, "lxml")
+for tag in title.findAll(class_=["Ba02", "Ba02SC", "mainentry"]):
+	if tag.string != None:
+		tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
+soup.find("title").string = title.text
 
 print(soup)
