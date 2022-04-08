@@ -136,6 +136,12 @@ brillcode = {
 		"\xff": "g̲"
 		}
 
+digraphs = {
+                "alṢ ?": "al-",
+                "ḍlṢ ?": "’l-",
+                " ,": ","
+        }
+
 specialchars = {
 		"\xbd": "<",
 		"\xbe": ">",
@@ -143,4 +149,5 @@ specialchars = {
 	}
 
 brillcode = str.maketrans(brillcode)
+digraphs = str.maketrans(digraphs)
 specialchars = str.maketrans(specialchars)
