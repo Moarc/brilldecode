@@ -186,17 +186,17 @@ try:
 except:
 	f = open(args.file,mode="rb")
 finally:
-		soup = bs4.BeautifulSoup(f.read().decode("raw_unicode_escape"), "html.parser")
-		f.close()
+	soup = bs4.BeautifulSoup(f.read().decode("raw_unicode_escape"), "html.parser")
+	f.close()
 
 #for tag in soup.findAll("form"):
 #	tag.name = "span"
 
 for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
-		tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
+	tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
 
 for tag in soup.findAll(class_="contributor", string=True):
-		tag.string = html.unescape(tag.string)
+	tag.string = html.unescape(tag.string)
 
 title = soup.find("meta", attrs={"name": "blob"})['content']
 for specialchar in specialchars.keys():
@@ -204,7 +204,7 @@ for specialchar in specialchars.keys():
 title = bs4.BeautifulSoup(title, "html.parser")
 
 for tag in title.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
-		tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
+	tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
 soup.find("title").string = title.text
 
 print(soup)
