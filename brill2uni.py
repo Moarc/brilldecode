@@ -18,6 +18,7 @@
 
 import bz2
 import bs4
+import html
 import re
 import sys
 
@@ -179,21 +180,24 @@ try:
 except:
 	f = open(sys.argv[1],mode="rb")
 finally:
-		soup = bs4.BeautifulSoup(f.read().decode("raw_unicode_escape"), "lxml")
+		soup = bs4.BeautifulSoup(f.read().decode("raw_unicode_escape"), "html.parser")
 		f.close()
 
-for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"]):
-	if tag.string != None:
-		tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
-	# if tag.name == "form":
-	# 	tag.name = "span"
+#for tag in soup.findAll("form"):
+#	tag.name = "span"
+
+for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
+		tag = brilldecode.sub(lambda x: brillcode[x.group()], tag)
+
+for tag in soup.findAll(class_="contributor", string=True):
+		tag.string = html.unescape(tag.string)
 
 title = soup.find("meta", attrs={"name": "blob"})['content']
 for specialchar in specialchars.keys():
-    title = title.replace(specialchar, specialchars[specialchar])
-title = bs4.BeautifulSoup(title, "lxml")
-for tag in title.findAll(class_=["Ba02", "Ba02SC", "mainentry"]):
-	if tag.string != None:
+	title = title.replace(specialchar, specialchars[specialchar])
+title = bs4.BeautifulSoup(title, "html.parser")
+
+for tag in title.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
 		tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
 soup.find("title").string = title.text
 
