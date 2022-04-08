@@ -21,12 +21,22 @@ import bs4
 import html
 import re
 import sys
+from pathlib import Path, PurePath
 import argparse
 
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("file")
+parser.add_argument("-d", "--cdrom", help="path to the CDROM root, for slob output")
 args = parser.parse_args()
+
+if args.cdrom:
+	import slob
+	mimetypes = {
+		".html":"text/html; charset=utf-8",
+		".css": "text/css; charset=utf-8",
+		".jpg": "image/jpg"
+	}
 
 brillcode = {
 		"\x21": "!",
@@ -189,8 +199,8 @@ finally:
 	soup = bs4.BeautifulSoup(f.read().decode("raw_unicode_escape"), "html.parser")
 	f.close()
 
-#for tag in soup.findAll("form"):
-#	tag.name = "span"
+for tag in soup.findAll("form"):
+	tag.name = "span"
 
 for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
 	tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
@@ -198,7 +208,15 @@ for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
 for tag in soup.findAll(class_="contributor", string=True):
 	tag.string = html.unescape(tag.string)
 
-title = soup.find("meta", attrs={"name": "blob"})['content']
+linkedfiles = ["EncIslam.css"]
+
+soup.find("link")["href"] = "EncIslam.css"
+
+for inlfig in soup.findAll(class_="inlFig"):
+	linkedfiles.append(args.cdrom+"/Brill"+inlfig["src"])
+	inlfig["src"] = PurePath(inlfig["src"]).name
+
+title = soup.find("meta", attrs={"name": "blob"})["content"]
 for specialchar in specialchars.keys():
 	title = title.replace(specialchar, specialchars[specialchar])
 title = bs4.BeautifulSoup(title, "html.parser")
@@ -207,4 +225,10 @@ for tag in title.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
 	tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
 soup.find("title").string = title.text
 
-print(soup)
+with slob.create("entry.slob") as w:
+	w.add(soup.encode("utf-8"), soup.find(class_="fat").text, str(Path(args.file).with_suffix("")), content_type=mimetypes[".html"])
+	for file in linkedfiles:
+		print(file)
+		f = open(file,mode="rb")
+		w.add(f.read(), PurePath(file).name, content_type=mimetypes[PurePath(file).suffix])
+		f.close()
