@@ -21,6 +21,12 @@ import bs4
 import html
 import re
 import sys
+import argparse
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("file")
+args = parser.parse_args()
 
 brillcode = {
 		"\x21": "!",
@@ -175,10 +181,10 @@ specialchars = {
 brilldecode = re.compile("|".join(re.escape(character) for character in brillcode.keys()))
 
 try:
-	f = bz2.open(sys.argv[1])
+	f = bz2.open(args.file,mode="rb")
 	f.peek(0)
 except:
-	f = open(sys.argv[1],mode="rb")
+	f = open(args.file,mode="rb")
 finally:
 		soup = bs4.BeautifulSoup(f.read().decode("raw_unicode_escape"), "html.parser")
 		f.close()
