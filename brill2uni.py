@@ -187,7 +187,7 @@ finally:
 #	tag.name = "span"
 
 for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
-		tag = brilldecode.sub(lambda x: brillcode[x.group()], tag)
+		tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
 
 for tag in soup.findAll(class_="contributor", string=True):
 		tag.string = html.unescape(tag.string)
