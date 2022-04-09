@@ -22,21 +22,27 @@ import html
 import re
 import sys
 from pathlib import Path, PurePath
+from tqdm import tqdm
 import argparse
 
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("file")
-parser.add_argument("-d", "--cdrom", help="path to the CDROM root, for slob output")
+parser.add_argument("cdrom", help="path to the CDROM root")
+parser.add_argument("output", help="output .slob file. Defaults to ei.slob", default="ei.slob")
 args = parser.parse_args()
 
-if args.cdrom:
-	import slob
-	mimetypes = {
+import slob
+mimetypes = {
 		".html":"text/html; charset=utf-8",
 		".css": "text/css; charset=utf-8",
 		".jpg": "image/jpg"
 	}
+
+w = slob.create(PurePath(args.output))
+linkedfiles = ["EncIslam.css"]
+missingfiles = 0
+
+entries = sorted(Path(PurePath(args.cdrom+"/Brill/Data/EncIslam")).glob('[CDS][0-9]/*.html'))
 
 brillcode = {
 		"\x21": "!",
@@ -190,45 +196,47 @@ specialchars = {
 
 brilldecode = re.compile("|".join(re.escape(character) for character in brillcode.keys()))
 
-try:
-	f = bz2.open(args.file,mode="rb")
-	f.peek(0)
-except:
-	f = open(args.file,mode="rb")
-finally:
-	soup = bs4.BeautifulSoup(f.read().decode("raw_unicode_escape"), "html.parser")
-	f.close()
-
-for tag in soup.findAll("form"):
-	tag.name = "span"
-
-for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
-	tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
-
-for tag in soup.findAll(class_="contributor", string=True):
-	tag.string = html.unescape(tag.string)
-
-linkedfiles = ["EncIslam.css"]
-
-soup.find("link")["href"] = "EncIslam.css"
-
-for inlfig in soup.findAll(class_="inlFig"):
-	linkedfiles.append(args.cdrom+"/Brill"+inlfig["src"])
-	inlfig["src"] = PurePath(inlfig["src"]).name
-
-title = soup.find("meta", attrs={"name": "blob"})["content"]
-for specialchar in specialchars.keys():
-	title = title.replace(specialchar, specialchars[specialchar])
-title = bs4.BeautifulSoup(title, "html.parser")
-
-for tag in title.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
-	tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
-soup.find("title").string = title.text
-
-with slob.create("entry.slob") as w:
-	w.add(soup.encode("utf-8"), soup.find(class_="fat").text, str(Path(args.file).with_suffix("")), content_type=mimetypes[".html"])
-	for file in linkedfiles:
-		print(file)
-		f = open(file,mode="rb")
-		w.add(f.read(), PurePath(file).name, content_type=mimetypes[PurePath(file).suffix])
+for entry in tqdm(entries, unit="entries"):
+	try:
+		f = bz2.open(entry,mode="rb")
+		f.peek(0)
+	except:
+		f = open(entry,mode="rb")
+	finally:
+		soup = bs4.BeautifulSoup(f.read().decode("raw_unicode_escape"), "html.parser")
 		f.close()
+
+	for tag in soup.findAll("form"):
+		tag.name = "span"
+
+	for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
+		tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
+
+	for tag in soup.findAll(class_="contributor", string=True):
+		tag.string = html.unescape(tag.string)
+
+	soup.find("link")["href"] = "EncIslam.css"
+
+	for inlfig in soup.findAll(class_="inlFig"):
+		linkedfiles.append(str(PurePath(args.cdrom+"/Brill"+inlfig["src"])))
+		inlfig["src"] = PurePath(inlfig["src"]).name
+
+	title = soup.find("meta", attrs={"name": "blob"})["content"]
+	for specialchar in specialchars.keys():
+		title = title.replace(specialchar, specialchars[specialchar])
+	title = bs4.BeautifulSoup(title, "html.parser")
+	for tag in title.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
+		tag.string = brilldecode.sub(lambda x: brillcode[x.group()], tag.string)
+	soup.find("title").string = title.text
+
+	w.add(soup.encode("utf-8"), re.split(r"( \[.*\])", title.text)[0], ' '.join(soup.find(class_="fat").text.split()), entry.name.removesuffix(".html"), content_type=mimetypes[".html"])
+
+for file in tqdm(sorted(set(linkedfiles)), unit="figures"):
+	try:
+		f = open(file,mode="rb")
+		w.add(f.read(), Path(file).name, content_type=mimetypes[PurePath(file).suffix])
+		f.close()
+	except:
+		missingfiles += 1
+
+w.finalize()
