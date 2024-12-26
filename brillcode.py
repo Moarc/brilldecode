@@ -144,7 +144,5 @@ specialchars = {
 		"\xd0": '"'
 	}
 
-brillre = re.compile("|".join(re.escape(character) for character in brillcode.keys()))
-
-def brilldecode(string):
-	return brillre.sub(lambda x: brillcode[x.group()], string)
+brillcode = str.maketrans(brillcode)
+specialchars = str.maketrans(specialchars)

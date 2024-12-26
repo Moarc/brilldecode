@@ -41,14 +41,13 @@ finally:
 #	tag.name = "span"
 
 for tag in soup.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
-	tag.string = brilldecode(tag.string)
+	tag.string = tag.string.translate(brillcode)
 
 for tag in soup.findAll(class_="contributor", string=True):
 	tag.string = html.unescape(tag.string)
 
 title = soup.find("meta", attrs={"name": "blob"})['content']
-for specialchar in specialchars.keys():
-	title = title.replace(specialchar, specialchars[specialchar])
+title = title.translate(specialchars)
 title = bs4.BeautifulSoup(title, "html.parser")
 
 for tag in title.findAll(class_=["Ba02", "Ba02SC", "mainentry"], string=True):
