@@ -15,4 +15,4 @@ With modern stuff like webfonts the custom font could be included for machines t
 - [x] output to something like [slob](https://github.com/itkach/slob)
 
 ## Postscript
-I'm not sure if the Ba00/Ba01 fonts include something other than regular Win-1252 (it didn't seem so to me, the Ö's etc. are displayed properly with other fonts) - if so, I'll create another "conversion table" for those too.
+I'm not sure if the Ba00/Ba01 fonts include something other than regular Win-1252 (it didn't seem so to me, the Ö's etc. are displayed properly with other fonts) - if so, I'll create another conversion table for those too.
