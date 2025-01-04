@@ -19,10 +19,8 @@
 import bz2
 import bs4
 import html
-import sys
 from pathlib import Path, PurePath
 from tqdm import tqdm
-import argparse
 from brillcode import *
 
 import argparse
